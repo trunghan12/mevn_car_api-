@@ -1,11 +1,22 @@
 const Blog = require('../models/blog')
 
 getAll = async (req,res)=>{
+    const page = parseInt(req.query.page)
+    const PAGE_SIZE = 4
+    const start = (page-1)*PAGE_SIZE
     let category = req.query.category
     if(category){
         const result = await Blog.find()
         data = result.filter(blog=>blog.category.toLowerCase()==category.toLowerCase())
         res.status(200).json(data)
+    }else if(page){
+    // return res.json(page)
+        try{
+            const posts = await Blog.find().skip(start).limit(PAGE_SIZE)
+            res.status(200).json(posts)
+        }catch(error){
+            res.status(500).json(error)
+        } 
     }else{
         try{
             const blogList = await Blog.find().sort({ createdAt: -1 });
